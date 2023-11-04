@@ -1,8 +1,8 @@
-# Napster-style-peer-to-peer-P2P-file-sharing-system
-AOS ASSIGNMENT
-Programming Project
+# Peer-to-peer-P2P-file-sharing-system
+
+ASSIGNMENT 1
+
 Peer to Peer File Sharing System Using Java RMI
-Abstract
 
 Java Remote Method Invocation (RMI) is a built-in and easy-to-use framework for the distribution of remote Java objects. Its simplicity and seamless inter-virtual machine communication has made it a valuable tool for distributed services. Here we present an approach that makes Java RMI usable for P2P and similar distribution models. The solution basically consists of following ideas: (1) registering the clients to the central indexing server, (2) searching for a file and locating the corresponding peer containing it, and (3) downloading the file from one peer to another peer, (4) calculating the average response time it takes to make 1000 sequential requests, and (5) calculating response times when multiple clients are concurrently making requests to the indexing server
 
