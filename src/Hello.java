@@ -13,16 +13,7 @@ import java.util.ArrayList;
 // import java.util.logging.Logger;
 import java.io.BufferedReader;
 import java.io.IOException;
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 
-/**
- *
- * @author Nikitha Mahesh
- */
 public class Hello extends UnicastRemoteObject implements HelloInterface {
     private ArrayList<FileDetails> Files;
 
@@ -41,8 +32,10 @@ public class Hello extends UnicastRemoteObject implements HelloInterface {
         fd.SourceDirectoryName = srcDir;
         this.Files.add(fd);
 
-        // System.out.println("File name" + " " + fd.FileName + "registered with peerID" + " " + fd.peerId
-        //         + "on port number" + fd.portNumber + "and the directory is" + fd.SourceDirectoryName);
+        // System.out.println("File name" + " " + fd.FileName + "registered with peerID"
+        // + " " + fd.peerId
+        // + "on port number" + fd.portNumber + "and the directory is" +
+        // fd.SourceDirectoryName);
         // getClientDetail(this.chatClients);
 
     }
@@ -58,7 +51,7 @@ public class Hello extends UnicastRemoteObject implements HelloInterface {
                 // System.out.println(fd.peerId == peerID);
                 if (fd.peerId.equals(peerID)) {
                     System.out.println("File name" + " " + fd.FileName + "registered with peerID" + " " + fd.peerId
-                + "on port number" + fd.portNumber + "and the directory is" + fd.SourceDirectoryName);
+                            + "on port number" + fd.portNumber + "and the directory is" + fd.SourceDirectoryName);
                 }
             }
         } catch (Exception e) {

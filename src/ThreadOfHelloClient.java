@@ -42,7 +42,7 @@ public class ThreadOfHelloClient implements Runnable {
             peerID = br.readLine();
 
             File directoryList = new File(directoryName);
-            
+
             // retrieve all files in the directoryName
             String[] store = directoryList.list();
 
@@ -51,7 +51,9 @@ public class ThreadOfHelloClient implements Runnable {
             while (counter < store.length) {
                 File currentFile = new File(store[counter]);
                 try {
-                    // register all files in the directoryName with the remote object (server side). This method is done by the server, so thread of server will log the result of this method
+                    // register all files in the directoryName with the remote object (server side).
+                    // This method is done by the server, so thread of server will log the result of
+                    // this method
                     hello.registerFiles(peerID, currentFile.getName(), portno, directoryName);
                 } catch (RemoteException ex) {
                     Logger.getLogger(ThreadOfHelloClient.class.getName()).log(Level.SEVERE, null, ex);
@@ -63,10 +65,10 @@ public class ThreadOfHelloClient implements Runnable {
 
             ArrayList<FileDetails> arr = new ArrayList<FileDetails>();
             System.out.println("Enter the file name to be searched");
-            
+
             while ((fileTobeSearched = br.readLine()) != null) {
                 arr = hello.search(fileTobeSearched);
-               
+
                 for (int i = 0; i < arr.size(); i++) {
                     System.out.println("Peer ID's having the given file are" + arr.get(i).peerId);
                 }
