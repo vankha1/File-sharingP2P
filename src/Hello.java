@@ -51,7 +51,7 @@ public class Hello extends UnicastRemoteObject implements HelloInterface {
                 // System.out.println(fd.peerId == peerID);
                 if (fd.peerId.equals(peerID)) {
                     System.out.println("File name" + " " + fd.FileName + "registered with peerID" + " " + fd.peerId
-                            + "on port number" + fd.portNumber + "and the directory is" + fd.SourceDirectoryName);
+                            + "on port number " + fd.portNumber + "and the directory is " + fd.SourceDirectoryName);
                 }
             }
         } catch (Exception e) {
