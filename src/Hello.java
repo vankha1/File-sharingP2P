@@ -12,18 +12,9 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 // import java.util.logging.Level;
 // import java.util.logging.Logger;
-// import java.io.BufferedReader;
-// import java.io.IOException;
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+import java.io.BufferedReader;
+import java.io.IOException;
 
-/**
- *
- * @author Nikitha Mahesh
- */
 public class Hello extends UnicastRemoteObject implements HelloInterface {
     private ArrayList<FileDetails> Files;
 

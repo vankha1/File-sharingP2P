@@ -22,62 +22,86 @@ public class ThreadOfHelloClient implements Runnable {
     String portno = null;
     String directoryName = null;
     String fileTobeSearched = null;
+    String peerID = null;
     boolean isAlive = false;
     BufferedReader inp = new BufferedReader(new InputStreamReader(System.in));
 
-    ThreadOfHelloClient(String portno, String directoryName) {
+    ThreadOfHelloClient(String portno) {
         this.portno = portno;
-        this.directoryName = directoryName;
     }
 
     public void run() {
-        String peerID = null;
+        
         isAlive = true;
         try {
             // Looking up the registry for the remote object
-            HelloInterface hello = (HelloInterface) Naming.lookup("Hello");
+            // HelloInterface hello = (HelloInterface) Naming.lookup("Hello");
 
+            // input peerId
             BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-
-            System.out.println("Enter the peer ID");
+            System.out.print("Enter the peer ID: ");
             peerID = br.readLine();
 
-            File directoryList = new File(directoryName);
-
-            // retrieve all files in the directoryName
-            String[] store = directoryList.list();
-
-            int counter = 0;
-
-            while (counter < store.length) {
-                File currentFile = new File(store[counter]);
-                try {
-                    // register all files in the directoryName with the remote object (server side).
-                    // This method is done by the server, so thread of server will log the result of
-                    // this method
-                    hello.registerFiles(peerID, currentFile.getName(), portno, directoryName);
-                } catch (RemoteException ex) {
-                    Logger.getLogger(ThreadOfHelloClient.class.getName()).log(Level.SEVERE, null, ex);
+            String inputLine = br.readLine();
+            while (!inputLine.equals("exit")) {
+                String[] inputArr = inputLine.split(" \"");
+                if (inputArr.length < 2 || inputArr.length > 3) {
+                    System.out.println("Invalid iput! Please try again!");
+                } else if (inputArr[0].equals("publish") && inputArr.length == 3) {
+                    String directoryName = inputArr[1].replace("\"", "");
+                    String fileName = inputArr[2].replace("\"", "");
+                    publishFile(directoryName, fileName);
+                } else if (inputArr[0].equals("fetch") && inputArr.length == 2) {
+                    String fileName = inputArr[1].replace("\"", "");
+                    fetchFile();
+                } else {
+                    System.out.println("Invalid input! Please try again!");
                 }
-                counter++;
+
+                inputLine = br.readLine();
             }
-            // hello.getClientFiles();
+        } catch (Exception e) {
+            System.out.println("HelloClient exception: " + e);
+        }
+    }
 
-            // method to search for the file
-            while (true) {
-                ArrayList<FileDetails> arr = new ArrayList<FileDetails>();
-                System.out.println("Enter the file name to be searched");
+    public void publishFile(String directoryName, String fileName ) throws IOException {
+        this.directoryName = directoryName;
+        try {
+            HelloInterface hello = (HelloInterface) Naming.lookup("Hello");
+            try {
+                // register file in the directoryName with the remote object (server side).
+                // This method is done by the server, so thread of server will log the result of
+                hello.registerFiles(peerID, fileName, portno, directoryName);
+            } catch (RemoteException ex) {
+                Logger.getLogger(ThreadOfHelloClient.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } catch (Exception e) {
+            System.out.println("HelloClient exception: " + e);
+        }
 
-                while ((fileTobeSearched = br.readLine()) != null) {
-                    arr = hello.search(fileTobeSearched);
+        try {
+            HelloClient fi = new FileImpl(directoryName);
+            Naming.rebind("rmi://localhost:" + portno + "/FileServer", fi);
+        } catch (Exception e) {
+            System.err.println("FileServer exception: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
 
-                    for (int i = 0; i < arr.size(); i++) {
-                        System.out.println("Peer ID's having the given file are " + arr.get(i).peerId);
-                    }
-                    System.out.println("Enter the peerID of the peer you want to connect ?");
-                    peerID = br.readLine();
-                    downloadFromPeer(peerID, arr);
-                    break;
+    public void fetchFile() {
+        try {
+            HelloInterface hello = (HelloInterface) Naming.lookup("Hello");
+            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+
+            ArrayList<FileDetails> arr = new ArrayList<FileDetails>();
+            System.out.println("Enter the file name to be searched");
+
+            while ((fileTobeSearched = br.readLine()) != null) {
+                arr = hello.search(fileTobeSearched);
+
+                for (int i = 0; i < arr.size(); i++) {
+                    System.out.println("Peer ID's having the given file are" + arr.get(i).peerId);
                 }
                 break;
             }
@@ -138,23 +162,16 @@ public class ThreadOfHelloClient implements Runnable {
 
         BufferedReader inp = new BufferedReader(new InputStreamReader(System.in));
         String portno = null;
-        System.out.println("Enter the port number on which peer needs to be registered");
-
+        System.out.print("Enter the port number on which peer needs to be registered: ");
         portno = inp.readLine();
-        System.out.println("Enter the directory path");
-        String directoryName = inp.readLine();
 
         try {
             LocateRegistry.createRegistry(Integer.parseInt(portno));
-            HelloClient fi = new FileImpl(directoryName);
-            System.out.println("Directory name: " + directoryName);
-            Naming.rebind("rmi://localhost:" + portno + "/FileServer", fi);
         } catch (Exception e) {
             System.err.println("FileServer exception: " + e.getMessage());
             e.printStackTrace();
         }
-        ThreadOfHelloClient p = new ThreadOfHelloClient(portno, directoryName);
-        Thread client = new Thread(p);
-        client.start();
+        new ThreadOfHelloClient(portno).run();
+
     }
 }
