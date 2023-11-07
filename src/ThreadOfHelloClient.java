@@ -22,6 +22,7 @@ public class ThreadOfHelloClient implements Runnable {
     String portno = null;
     String directoryName = null;
     String fileTobeSearched = null;
+    boolean isAlive = false;
     BufferedReader inp = new BufferedReader(new InputStreamReader(System.in));
 
     ThreadOfHelloClient(String portno, String directoryName) {
@@ -31,7 +32,7 @@ public class ThreadOfHelloClient implements Runnable {
 
     public void run() {
         String peerID = null;
-
+        isAlive = true;
         try {
             // Looking up the registry for the remote object
             HelloInterface hello = (HelloInterface) Naming.lookup("Hello");
@@ -42,7 +43,7 @@ public class ThreadOfHelloClient implements Runnable {
             peerID = br.readLine();
 
             File directoryList = new File(directoryName);
-            
+
             // retrieve all files in the directoryName
             String[] store = directoryList.list();
 
@@ -51,30 +52,37 @@ public class ThreadOfHelloClient implements Runnable {
             while (counter < store.length) {
                 File currentFile = new File(store[counter]);
                 try {
-                    // register all files in the directoryName with the remote object (server side). This method is done by the server, so thread of server will log the result of this method
+                    // register all files in the directoryName with the remote object (server side).
+                    // This method is done by the server, so thread of server will log the result of
+                    // this method
                     hello.registerFiles(peerID, currentFile.getName(), portno, directoryName);
                 } catch (RemoteException ex) {
                     Logger.getLogger(ThreadOfHelloClient.class.getName()).log(Level.SEVERE, null, ex);
                 }
                 counter++;
             }
-            hello.getClientFiles();
-            // method to search for the file
+            // hello.getClientFiles();
 
-            ArrayList<FileDetails> arr = new ArrayList<FileDetails>();
-            System.out.println("Enter the file name to be searched");
-            
-            while ((fileTobeSearched = br.readLine()) != null) {
-                arr = hello.search(fileTobeSearched);
-               
-                for (int i = 0; i < arr.size(); i++) {
-                    System.out.println("Peer ID's having the given file are" + arr.get(i).peerId);
+            // method to search for the file
+            while (true) {
+                ArrayList<FileDetails> arr = new ArrayList<FileDetails>();
+                System.out.println("Enter the file name to be searched");
+
+                while ((fileTobeSearched = br.readLine()) != null) {
+                    arr = hello.search(fileTobeSearched);
+
+                    for (int i = 0; i < arr.size(); i++) {
+                        System.out.println("Peer ID's having the given file are " + arr.get(i).peerId);
+                    }
+                    System.out.println("Enter the peerID of the peer you want to connect ?");
+                    peerID = br.readLine();
+                    downloadFromPeer(peerID, arr);
+                    break;
                 }
-                System.out.println("Enter the peerID of the peer you want to connect?");
-                peerID = br.readLine();
-                downloadFromPeer(peerID, arr);
                 break;
             }
+            Thread.currentThread().interrupt();
+            hello.isAliveChecking(Thread.currentThread());
         } catch (Exception e) {
             System.out.println("HelloClient exception: " + e);
         }
@@ -145,7 +153,8 @@ public class ThreadOfHelloClient implements Runnable {
             System.err.println("FileServer exception: " + e.getMessage());
             e.printStackTrace();
         }
-        new ThreadOfHelloClient(portno, directoryName).run();
-
+        ThreadOfHelloClient p = new ThreadOfHelloClient(portno, directoryName);
+        Thread client = new Thread(p);
+        client.start();
     }
 }
