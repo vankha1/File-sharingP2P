@@ -35,7 +35,7 @@ public class ThreadOfHelloClient implements Runnable {
         isAlive = true;
         try {
             // Looking up the registry for the remote object
-            // HelloInterface hello = (HelloInterface) Naming.lookup("Hello");
+            HelloInterface hello = (HelloInterface) Naming.lookup("Hello");
 
             // input peerId
             BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
