@@ -106,16 +106,14 @@ public class Hello extends UnicastRemoteObject implements HelloInterface {
         return "Client " + peerId + " died";
     }
 
-    public ArrayList<FileDetails> search(String filename) throws RemoteException {
-        ArrayList<FileDetails> FilesMatched = new ArrayList<FileDetails>();
+    public FileDetails search(String fileName) throws RemoteException {
+        FileDetails FileMatched = new FileDetails();
         for (int i = 0; i < this.Files.size(); i++) {
-            if (filename.equalsIgnoreCase(Files.get(i).FileName)) {
-                // System.out.println("The peer ID's having the same filename are
-                // "+Files.get(i).peerId);
-                FilesMatched.add(Files.get(i));
-
+            if (fileName.equalsIgnoreCase(Files.get(i).FileName)) {
+                FileMatched = Files.get(i);
+                break;
             }
         }
-        return (FilesMatched);
+        return FileMatched;
     }
 }

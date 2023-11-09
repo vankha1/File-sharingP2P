@@ -57,8 +57,8 @@ public class ThreadOfHelloClient implements Runnable {
                     String fileName = inputArr[2].replace("\"", "");
                     publishFile(directoryName, fileName);
                 } else if (inputArr[0].equals("fetch") && inputArr.length == 2) {
-                    String fileName = inputArr[1].replace("\"", "");
-                    fetchFile();
+                    String fileTobeSearched = inputArr[1].replace("\"", "");
+                    fetchFile( fileTobeSearched );
                 } else {
                     System.out.println("Invalid input! Please try again!");
                 }
@@ -99,47 +99,27 @@ public class ThreadOfHelloClient implements Runnable {
         }
     }
 
-    public void fetchFile() {
+    public void fetchFile(String fileTobeSearched) {
+        System.out.println(fileTobeSearched);
         try {
             HelloInterface hello = (HelloInterface) Naming.lookup("Hello");
-            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
-            ArrayList<FileDetails> arr = new ArrayList<FileDetails>();
-            System.out.println("Enter the file name to be searched");
+            FileDetails FileName = hello.search(fileTobeSearched);
 
-            while ((fileTobeSearched = br.readLine()) != null) {
-                System.out.println("Testing if it works or not !!!!");
-
-                arr = hello.search(fileTobeSearched);
-
-                for (int i = 0; i < arr.size(); i++) {
-                    System.out.println("Peer ID's having the given file are" + arr.get(i).peerId);
-                }
-                break;
-            }
+            downloadFromPeer(FileName.peerId, FileName);
         } catch (Exception e) {
             System.out.println("HelloClient exception: " + e);
         }
     }
 
-    public void downloadFromPeer(String peerid, ArrayList<FileDetails> arr)
+    public void downloadFromPeer(String peerid, FileDetails fileTobeSearched)
             throws NotBoundException, RemoteException, MalformedURLException, IOException {
         // get port
-        String portForAnotherClient = null;
-        String sourceDir = null;
-        for (int i = 0; i < arr.size(); i++) {
-            if (peerid.equals(arr.get(i).peerId)) {
-                portForAnotherClient = arr.get(i).portNumber;
-                sourceDir = arr.get(i).SourceDirectoryName;
-            }
-        }
+        String portForAnotherClient = fileTobeSearched.portNumber;
+        String sourceDir = fileTobeSearched.SourceDirectoryName;
         HelloClient peerServer = (HelloClient) Naming.lookup("rmi://localhost:" + portForAnotherClient + "/FileServer");
-        // System.out.println(sourceDir.getClass());
-        // byte filetoDownload[] = peerServer.downloadFile(sourceDir);
 
-        // System.out.println(filetoDownload);
-
-        String source = sourceDir + "\\" + fileTobeSearched;
+        String source = sourceDir + "\\" + fileTobeSearched.FileName;
         // directory where file will be copied
         String target = directoryName;
 
@@ -152,11 +132,13 @@ public class ThreadOfHelloClient implements Runnable {
             if (!destFile.exists()) {
                 destFile.createNewFile();
             }
+            System.out.println("Code run to here!!");
             is = new FileInputStream(srcFile);
 
             os = new FileOutputStream(target + "\\" + srcFile.getName());
             byte[] buffer = new byte[1024];
             int length;
+
             while ((length = is.read(buffer)) > 0) {
                 os.write(buffer, 0, length);
             }

@@ -13,7 +13,7 @@ public interface HelloInterface extends Remote {
     // RemoteException may occur; throw it.
     public void registerFiles(String peerId, String filename, String portno, String srcDir) throws RemoteException;
 
-    public ArrayList<FileDetails> search(String filename) throws RemoteException;
+    public FileDetails search(String fileName) throws RemoteException;
 
     public void addClient(String peerId) throws RemoteException;
 
