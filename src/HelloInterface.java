@@ -15,7 +15,11 @@ public interface HelloInterface extends Remote {
 
     public ArrayList<FileDetails> search(String filename) throws RemoteException;
 
+    public void addClient(String peerId) throws RemoteException;
+
     public void getClientFiles() throws RemoteException;
 
-    public boolean isAliveChecking(Thread checked) throws RemoteException;
+    public void removeClient(String peerId) throws RemoteException;
+
+    public String getLiveClients(String text) throws RemoteException;
 }

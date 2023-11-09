@@ -31,7 +31,7 @@ public class ThreadOfHelloClient implements Runnable {
     }
 
     public void run() {
-        
+
         isAlive = true;
         try {
             // Looking up the registry for the remote object
@@ -42,7 +42,12 @@ public class ThreadOfHelloClient implements Runnable {
             System.out.print("Enter the peer ID: ");
             peerID = br.readLine();
 
+            hello.addClient(peerID);
+
             String inputLine = br.readLine();
+            if (inputLine.equals("exit")) {
+                hello.removeClient(peerID);
+            }
             while (!inputLine.equals("exit")) {
                 String[] inputArr = inputLine.split(" \"");
                 if (inputArr.length < 2 || inputArr.length > 3) {
@@ -59,13 +64,18 @@ public class ThreadOfHelloClient implements Runnable {
                 }
 
                 inputLine = br.readLine();
+                // if (inputLine.equals("exit")){
+                // String text = "RMI Test Message";
+                // hello.sendMessage(text);
+                // System.out.println(text);
+                // }
             }
         } catch (Exception e) {
             System.out.println("HelloClient exception: " + e);
         }
     }
 
-    public void publishFile(String directoryName, String fileName ) throws IOException {
+    public void publishFile(String directoryName, String fileName) throws IOException {
         this.directoryName = directoryName;
         try {
             HelloInterface hello = (HelloInterface) Naming.lookup("Hello");
@@ -98,6 +108,8 @@ public class ThreadOfHelloClient implements Runnable {
             System.out.println("Enter the file name to be searched");
 
             while ((fileTobeSearched = br.readLine()) != null) {
+                System.out.println("Testing if it works or not !!!!");
+
                 arr = hello.search(fileTobeSearched);
 
                 for (int i = 0; i < arr.size(); i++) {
@@ -105,8 +117,6 @@ public class ThreadOfHelloClient implements Runnable {
                 }
                 break;
             }
-            Thread.currentThread().interrupt();
-            hello.isAliveChecking(Thread.currentThread());
         } catch (Exception e) {
             System.out.println("HelloClient exception: " + e);
         }
@@ -164,7 +174,6 @@ public class ThreadOfHelloClient implements Runnable {
         String portno = null;
         System.out.print("Enter the port number on which peer needs to be registered: ");
         portno = inp.readLine();
-
         try {
             LocateRegistry.createRegistry(Integer.parseInt(portno));
         } catch (Exception e) {
@@ -172,6 +181,5 @@ public class ThreadOfHelloClient implements Runnable {
             e.printStackTrace();
         }
         new ThreadOfHelloClient(portno).run();
-
     }
 }

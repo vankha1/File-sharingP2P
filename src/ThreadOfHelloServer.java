@@ -1,4 +1,6 @@
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.rmi.Naming;
 import java.rmi.registry.LocateRegistry;
 
@@ -21,6 +23,12 @@ public class ThreadOfHelloServer implements Runnable {
 
          System.out.println("Hello Server is ready.");
          while(true){
+            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+            
+            System.out.println("Enter the peer ID to check live : ");
+            String peerId = br.readLine();
+            
+            System.out.println( hello.getLiveClients(peerId));
             hello.getClientFiles();
          }
       } catch (Exception e) {
