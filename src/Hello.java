@@ -12,17 +12,24 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 // import java.util.logging.Level;
 // import java.util.logging.Logger;
-import java.io.BufferedReader;
-import java.io.IOException;
+// import java.io.BufferedReader;
+// import java.io.IOException;
 
 public class Hello extends UnicastRemoteObject implements HelloInterface {
     private ArrayList<FileDetails> Files;
+    private ArrayList<String> clients;
 
     // private ArrayList<FileDetails> FilesMatched;
     public Hello() throws RemoteException {
         super();
         Files = new ArrayList<FileDetails>();
+        clients = new ArrayList<String>();
     }
+
+    public void addClient(String peerId){
+        this.clients.add(peerId);
+        System.out.println(this.clients);
+    }   
 
     public synchronized void registerFiles(String peerId, String fileName, String portno, String srcDir)
             throws RemoteException {
@@ -32,7 +39,6 @@ public class Hello extends UnicastRemoteObject implements HelloInterface {
         fd.portNumber = portno;
         fd.SourceDirectoryName = srcDir;
         this.Files.add(fd);
-
         // System.out.println("File name" + " " + fd.FileName + "registered with peerID"
         // + " " + fd.peerId
         // + "on port number" + fd.portNumber + "and the directory is" +
@@ -86,9 +92,18 @@ public class Hello extends UnicastRemoteObject implements HelloInterface {
         }
     }
 
-    public boolean isAliveChecking(Thread checked) throws RemoteException {
-        System.out.println(checked.getState());
-        return false;
+    public void removeClient(String peerId) throws RemoteException {
+        this.clients.remove(peerId);
+        System.out.println(this.clients);
+    }
+
+    public String getLiveClients(String peerId) throws RemoteException {
+        for (int i = 0; i < this.clients.size(); i++){
+            if (this.clients.get(i).equals(peerId)){
+                return "Client " + peerId + " still alive";
+            }
+        }
+        return "Client " + peerId + " died";
     }
 
     public ArrayList<FileDetails> search(String filename) throws RemoteException {
