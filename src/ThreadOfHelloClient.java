@@ -50,25 +50,18 @@ public class ThreadOfHelloClient implements Runnable {
             }
             while (!inputLine.equals("exit")) {
                 String[] inputArr = inputLine.split(" \"");
-                if (inputArr.length < 2 || inputArr.length > 3) {
-                    System.out.println("Invalid iput! Please try again!");
-                } else if (inputArr[0].equals("publish") && inputArr.length == 3) {
+               if (inputArr[0].equals("publish") && inputArr.length == 3) {
                     String directoryName = inputArr[1].replace("\"", "");
                     String fileName = inputArr[2].replace("\"", "");
                     publishFile(directoryName, fileName);
-                } else if (inputArr[0].equals("fetch") && inputArr.length == 2) {
+               } else if (inputArr[0].equals("fetch") && inputArr.length == 2) {
                     String fileTobeSearched = inputArr[1].replace("\"", "");
                     fetchFile( fileTobeSearched );
-                } else {
+               } else {
                     System.out.println("Invalid input! Please try again!");
-                }
+               }
 
                 inputLine = br.readLine();
-                // if (inputLine.equals("exit")){
-                // String text = "RMI Test Message";
-                // hello.sendMessage(text);
-                // System.out.println(text);
-                // }
             }
         } catch (Exception e) {
             System.out.println("HelloClient exception: " + e);
@@ -128,11 +121,9 @@ public class ThreadOfHelloClient implements Runnable {
         try {
             File srcFile = new File(source);
             File destFile = new File(target);
-            System.out.println("file " + destFile);
             if (!destFile.exists()) {
                 destFile.createNewFile();
             }
-            System.out.println("Code run to here!!");
             is = new FileInputStream(srcFile);
 
             os = new FileOutputStream(target + "\\" + srcFile.getName());
@@ -142,6 +133,7 @@ public class ThreadOfHelloClient implements Runnable {
             while ((length = is.read(buffer)) > 0) {
                 os.write(buffer, 0, length);
             }
+            System.out.println("Download successfully!.");
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -154,7 +146,7 @@ public class ThreadOfHelloClient implements Runnable {
 
         BufferedReader inp = new BufferedReader(new InputStreamReader(System.in));
         String portno = null;
-        System.out.print("Enter the port number on which peer needs to be registered: ");
+        System.out.print("Enter the port number to be registered: ");
         portno = inp.readLine();
         try {
             LocateRegistry.createRegistry(Integer.parseInt(portno));
