@@ -50,25 +50,18 @@ public class ThreadOfHelloClient implements Runnable {
             }
             while (!inputLine.equals("exit")) {
                 String[] inputArr = inputLine.split(" \"");
-                if (inputArr.length < 2 || inputArr.length > 3) {
-                    System.out.println("Invalid iput! Please try again!");
-                } else if (inputArr[0].equals("publish") && inputArr.length == 3) {
+               if (inputArr[0].equals("publish") && inputArr.length == 3) {
                     String directoryName = inputArr[1].replace("\"", "");
                     String fileName = inputArr[2].replace("\"", "");
                     publishFile(directoryName, fileName);
-                } else if (inputArr[0].equals("fetch") && inputArr.length == 2) {
-                    String fileName = inputArr[1].replace("\"", "");
-                    fetchFile();
-                } else {
+               } else if (inputArr[0].equals("fetch") && inputArr.length == 2) {
+                    String fileTobeSearched = inputArr[1].replace("\"", "");
+                    fetchFile( fileTobeSearched );
+               } else {
                     System.out.println("Invalid input! Please try again!");
-                }
+               }
 
                 inputLine = br.readLine();
-                // if (inputLine.equals("exit")){
-                // String text = "RMI Test Message";
-                // hello.sendMessage(text);
-                // System.out.println(text);
-                // }
             }
         } catch (Exception e) {
             System.out.println("HelloClient exception: " + e);
@@ -99,47 +92,27 @@ public class ThreadOfHelloClient implements Runnable {
         }
     }
 
-    public void fetchFile() {
+    public void fetchFile(String fileTobeSearched) {
+        System.out.println(fileTobeSearched);
         try {
             HelloInterface hello = (HelloInterface) Naming.lookup("Hello");
-            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
-            ArrayList<FileDetails> arr = new ArrayList<FileDetails>();
-            System.out.println("Enter the file name to be searched");
+            FileDetails FileName = hello.search(fileTobeSearched);
 
-            while ((fileTobeSearched = br.readLine()) != null) {
-                System.out.println("Testing if it works or not !!!!");
-
-                arr = hello.search(fileTobeSearched);
-
-                for (int i = 0; i < arr.size(); i++) {
-                    System.out.println("Peer ID's having the given file are" + arr.get(i).peerId);
-                }
-                break;
-            }
+            downloadFromPeer(FileName.peerId, FileName);
         } catch (Exception e) {
             System.out.println("HelloClient exception: " + e);
         }
     }
 
-    public void downloadFromPeer(String peerid, ArrayList<FileDetails> arr)
+    public void downloadFromPeer(String peerid, FileDetails fileTobeSearched)
             throws NotBoundException, RemoteException, MalformedURLException, IOException {
         // get port
-        String portForAnotherClient = null;
-        String sourceDir = null;
-        for (int i = 0; i < arr.size(); i++) {
-            if (peerid.equals(arr.get(i).peerId)) {
-                portForAnotherClient = arr.get(i).portNumber;
-                sourceDir = arr.get(i).SourceDirectoryName;
-            }
-        }
+        String portForAnotherClient = fileTobeSearched.portNumber;
+        String sourceDir = fileTobeSearched.SourceDirectoryName;
         HelloClient peerServer = (HelloClient) Naming.lookup("rmi://localhost:" + portForAnotherClient + "/FileServer");
-        // System.out.println(sourceDir.getClass());
-        // byte filetoDownload[] = peerServer.downloadFile(sourceDir);
 
-        // System.out.println(filetoDownload);
-
-        String source = sourceDir + "\\" + fileTobeSearched;
+        String source = sourceDir + "\\" + fileTobeSearched.FileName;
         // directory where file will be copied
         String target = directoryName;
 
@@ -148,7 +121,6 @@ public class ThreadOfHelloClient implements Runnable {
         try {
             File srcFile = new File(source);
             File destFile = new File(target);
-            System.out.println("file " + destFile);
             if (!destFile.exists()) {
                 destFile.createNewFile();
             }
@@ -157,9 +129,11 @@ public class ThreadOfHelloClient implements Runnable {
             os = new FileOutputStream(target + "\\" + srcFile.getName());
             byte[] buffer = new byte[1024];
             int length;
+
             while ((length = is.read(buffer)) > 0) {
                 os.write(buffer, 0, length);
             }
+            System.out.println("Download successfully!.");
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -172,7 +146,7 @@ public class ThreadOfHelloClient implements Runnable {
 
         BufferedReader inp = new BufferedReader(new InputStreamReader(System.in));
         String portno = null;
-        System.out.print("Enter the port number on which peer needs to be registered: ");
+        System.out.print("Enter the port number to be registered: ");
         portno = inp.readLine();
         try {
             LocateRegistry.createRegistry(Integer.parseInt(portno));

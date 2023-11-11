@@ -22,14 +22,21 @@ public class ThreadOfHelloServer implements Runnable {
          Naming.rebind("Hello", hello);
 
          System.out.println("Hello Server is ready.");
-         while(true){
-            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-            
-            System.out.println("Enter the peer ID to check live : ");
-            String peerId = br.readLine();
-            
-            System.out.println( hello.getLiveClients(peerId));
-            hello.getClientFiles();
+         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+         String inputLine = br.readLine();
+         while (!inputLine.equals("exit")) {
+            String[] inputArr = inputLine.split(" \"");
+            if (inputArr[0].equals("discover") && inputArr.length == 2) {
+               String peerID = inputArr[1].replace("\"", "");
+               hello.discoverClient(peerID);
+            } else if (inputArr[0].equals("ping") && inputArr.length == 2) {
+               String peerID = inputArr[1].replace("\"", "");
+               hello.pingClient(peerID);
+            } else {
+               System.out.println("Invalid input! Please try again!");
+            }
+
+            inputLine = br.readLine();
          }
       } catch (Exception e) {
          System.out.println("Hello Server failed: " + e);
