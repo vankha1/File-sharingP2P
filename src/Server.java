@@ -14,11 +14,11 @@ Server class bao gồm:
 // The main method for the server is defined in the class ThreadOfHelloServer. The server's main method does the following: Create and export a remote object
 
 // The static method LocateRegistry.getRegistry that takes no arguments returns a stub that implements the remote interface java.rmi.registry.Registry and sends invocations to the registry on server's local host on the default registry port of 1099. The bind method is then invoked on the registry stub in order to bind the remote object's stub to the name "Hello" in the registry.
-public class ThreadOfHelloServer implements Runnable {
+public class Server implements Runnable {
    public void run() {
       try {
          LocateRegistry.createRegistry(1099);
-         HelloInterface hello = new Hello();
+         FileSharingInterface hello = new FileSharing();
          Naming.rebind("Hello", hello);
 
          System.out.println("Hello Server is ready.");
@@ -44,6 +44,6 @@ public class ThreadOfHelloServer implements Runnable {
    }
 
    public static void main(String[] args) {
-      new ThreadOfHelloServer().run();
+      new Server().run();
    }
 }

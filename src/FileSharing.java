@@ -1,17 +1,14 @@
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.InetAddress;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 
 
-public class Hello extends UnicastRemoteObject implements HelloInterface {
+public class FileSharing extends UnicastRemoteObject implements FileSharingInterface {
     private ArrayList<FileDetails> Files;
     private ArrayList<String> clients;
 
     // private ArrayList<FileDetails> FilesMatched;
-    public Hello() throws RemoteException {
+    public FileSharing() throws RemoteException {
         super();
         Files = new ArrayList<FileDetails>();
         clients = new ArrayList<String>();
@@ -19,13 +16,12 @@ public class Hello extends UnicastRemoteObject implements HelloInterface {
 
     public void addClient(String peerId){
         this.clients.add(peerId);
-        System.out.println(this.clients);
     }   
 
-    public synchronized void registerFiles(String peerId, String fileName, String portno, String srcDir)
+    public synchronized void registerFiles(String peerID, String fileName, String portno, String srcDir)
             throws RemoteException {
         FileDetails fd = new FileDetails();
-        fd.peerId = peerId;
+        fd.peerID = peerID;
         fd.FileName = fileName;
         fd.portNumber = portno;
         fd.SourceDirectoryName = srcDir;
@@ -40,8 +36,8 @@ public class Hello extends UnicastRemoteObject implements HelloInterface {
         } else {
             for (int i = 0; i < Files.size(); i++) {
                 FileDetails fd = Files.get(i);
-                if (fd.peerId.equals(peerID)) {
-                    System.out.println("File name " + fd.FileName + " registered with peerID " + fd.peerId + " on port number " + fd.portNumber + " and the directory is " + fd.SourceDirectoryName);
+                if (fd.peerID.equals(peerID)) {
+                    System.out.println("File name " + fd.FileName + " registered with peerID " + fd.peerID + " on port number " + fd.portNumber + " and the directory is " + fd.SourceDirectoryName);
                     found = true;
                 }
             }
@@ -66,19 +62,21 @@ public class Hello extends UnicastRemoteObject implements HelloInterface {
         }
     }
 
-    public void removeClient(String peerId) throws RemoteException {
-        this.clients.remove(peerId);
+    public void removeClient(String peerID) throws RemoteException {
+        this.clients.remove(peerID);
         System.out.println(this.clients);
     }
 
-    public FileDetails search(String fileName) throws RemoteException {
-        FileDetails FileMatched = new FileDetails();
-        for (int i = 0; i < this.Files.size(); i++) {
-            if (fileName.equalsIgnoreCase(Files.get(i).FileName)) {
-                FileMatched = Files.get(i);
-                break;
+    public ArrayList<FileDetails> searchFile(String filename) throws RemoteException {
+        ArrayList<FileDetails> FilesMatched= new ArrayList<FileDetails>();
+        for(int i=0;i<this.Files.size();i++)
+        {
+            if(filename.equalsIgnoreCase(Files.get(i).FileName))
+            {
+                FilesMatched.add(Files.get(i));
+
             }
         }
-        return FileMatched;
+        return (FilesMatched);
     }
 }
