@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class ThreadOfHelloClient implements Runnable {
+public class Client implements Runnable {
     String portno = null;
     String directoryName = null;
     String fileTobeSearched = null;
@@ -26,7 +26,7 @@ public class ThreadOfHelloClient implements Runnable {
     boolean isAlive = false;
     BufferedReader inp = new BufferedReader(new InputStreamReader(System.in));
 
-    ThreadOfHelloClient(String portno) {
+    Client(String portno) {
         this.portno = portno;
     }
 
@@ -35,7 +35,7 @@ public class ThreadOfHelloClient implements Runnable {
         isAlive = true;
         try {
             // Looking up the registry for the remote object
-            HelloInterface hello = (HelloInterface) Naming.lookup("Hello");
+            FileSharingInterface hello = (FileSharingInterface) Naming.lookup("Hello");
 
             // input peerId
             BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -71,20 +71,20 @@ public class ThreadOfHelloClient implements Runnable {
     public void publishFile(String directoryName, String fileName) throws IOException {
         this.directoryName = directoryName;
         try {
-            HelloInterface hello = (HelloInterface) Naming.lookup("Hello");
+            FileSharingInterface hello = (FileSharingInterface) Naming.lookup("Hello");
             try {
                 // register file in the directoryName with the remote object (server side).
                 // This method is done by the server, so thread of server will log the result of
                 hello.registerFiles(peerID, fileName, portno, directoryName);
             } catch (RemoteException ex) {
-                Logger.getLogger(ThreadOfHelloClient.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(FileSharingClient.class.getName()).log(Level.SEVERE, null, ex);
             }
         } catch (Exception e) {
             System.out.println("HelloClient exception: " + e);
         }
 
         try {
-            HelloClient fi = new FileImpl(directoryName);
+            FileSharingClient fi = new FileImpl(directoryName);
             Naming.rebind("rmi://localhost:" + portno + "/FileServer", fi);
         } catch (Exception e) {
             System.err.println("FileServer exception: " + e.getMessage());
@@ -95,24 +95,28 @@ public class ThreadOfHelloClient implements Runnable {
     public void fetchFile(String fileTobeSearched) {
         System.out.println(fileTobeSearched);
         try {
-            HelloInterface hello = (HelloInterface) Naming.lookup("Hello");
+            FileSharingInterface hello = (FileSharingInterface) Naming.lookup("Hello");
 
-            FileDetails FileName = hello.search(fileTobeSearched);
+            ArrayList<FileDetails> FilesName = hello.searchFile(fileTobeSearched);
 
-            downloadFromPeer(FileName.peerId, FileName);
+            downloadFile(FilesName);
         } catch (Exception e) {
             System.out.println("HelloClient exception: " + e);
         }
     }
 
-    public void downloadFromPeer(String peerid, FileDetails fileTobeSearched)
+    public void downloadFile(ArrayList<FileDetails> FilesName)
             throws NotBoundException, RemoteException, MalformedURLException, IOException {
         // get port
-        String portForAnotherClient = fileTobeSearched.portNumber;
-        String sourceDir = fileTobeSearched.SourceDirectoryName;
-        HelloClient peerServer = (HelloClient) Naming.lookup("rmi://localhost:" + portForAnotherClient + "/FileServer");
+        for(int i=0;i<FilesName.size();i++)
+        {
+            System.out.println("This file can be found in peerID " + FilesName.get(i).peerID);
+        }
+        String portForAnotherClient = FilesName.get(0).portNumber;
+        String sourceDir = FilesName.get(0).SourceDirectoryName;
+        FileSharingClient peerServer = (FileSharingClient) Naming.lookup("rmi://localhost:" + portForAnotherClient + "/FileServer");
 
-        String source = sourceDir + "\\" + fileTobeSearched.FileName;
+        String source = sourceDir + "\\" + FilesName.get(0).FileName;
         // directory where file will be copied
         String target = directoryName;
 
@@ -146,7 +150,7 @@ public class ThreadOfHelloClient implements Runnable {
 
         BufferedReader inp = new BufferedReader(new InputStreamReader(System.in));
         String portno = null;
-        System.out.print("Enter the port number to be registered: ");
+        System.out.print("Enter port number to be registered: ");
         portno = inp.readLine();
         try {
             LocateRegistry.createRegistry(Integer.parseInt(portno));
@@ -154,6 +158,6 @@ public class ThreadOfHelloClient implements Runnable {
             System.err.println("FileServer exception: " + e.getMessage());
             e.printStackTrace();
         }
-        new ThreadOfHelloClient(portno).run();
+        new Client(portno).run();
     }
 }
