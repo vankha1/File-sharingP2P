@@ -14,7 +14,6 @@ import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
-import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -35,7 +34,7 @@ public class ThreadOfHelloClient implements Runnable {
         isAlive = true;
         try {
             // Looking up the registry for the remote object
-            HelloInterface hello = (HelloInterface) Naming.lookup("Hello");
+            HelloInterface hello = (HelloInterface) Naming.lookup("rmi://172.25.32.1/Hello");
 
             // input peerId
             BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -71,7 +70,7 @@ public class ThreadOfHelloClient implements Runnable {
     public void publishFile(String directoryName, String fileName) throws IOException {
         this.directoryName = directoryName;
         try {
-            HelloInterface hello = (HelloInterface) Naming.lookup("Hello");
+            HelloInterface hello = (HelloInterface) Naming.lookup("rmi://172.25.32.1/Hello");
             try {
                 // register file in the directoryName with the remote object (server side).
                 // This method is done by the server, so thread of server will log the result of
@@ -95,7 +94,7 @@ public class ThreadOfHelloClient implements Runnable {
     public void fetchFile(String fileTobeSearched) {
         System.out.println(fileTobeSearched);
         try {
-            HelloInterface hello = (HelloInterface) Naming.lookup("Hello");
+            HelloInterface hello = (HelloInterface) Naming.lookup("rmi://172.25.32.1/Hello");
 
             FileDetails FileName = hello.search(fileTobeSearched);
 

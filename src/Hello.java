@@ -1,6 +1,4 @@
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.InetAddress;
+
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
@@ -68,11 +66,12 @@ public class Hello extends UnicastRemoteObject implements HelloInterface {
 
     public void removeClient(String peerId) throws RemoteException {
         this.clients.remove(peerId);
-        System.out.println(this.clients);
+        System.out.println("Clients connected are " + this.clients);
     }
 
     public FileDetails search(String fileName) throws RemoteException {
         FileDetails FileMatched = new FileDetails();
+        System.out.println("Code run to here");
         for (int i = 0; i < this.Files.size(); i++) {
             if (fileName.equalsIgnoreCase(Files.get(i).FileName)) {
                 FileMatched = Files.get(i);
