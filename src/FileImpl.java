@@ -6,7 +6,7 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
 public class FileImpl extends UnicastRemoteObject
-      implements HelloClient {
+      implements FileSharingClient {
 
    private String directoryName;
 
