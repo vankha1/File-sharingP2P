@@ -24,7 +24,7 @@ public class Server implements Runnable {
          System.out.println("Hello Server is ready.");
          BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
          String inputLine = br.readLine();
-         while (!inputLine.equals("exit")) {
+         while (true) {
             String[] inputArr = inputLine.split(" \"");
             if (inputArr[0].equals("discover") && inputArr.length == 2) {
                String peerID = inputArr[1].replace("\"", "");
@@ -35,7 +35,6 @@ public class Server implements Runnable {
             } else {
                System.out.println("Invalid input! Please try again!");
             }
-
             inputLine = br.readLine();
          }
       } catch (Exception e) {

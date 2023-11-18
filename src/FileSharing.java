@@ -14,8 +14,8 @@ public class FileSharing extends UnicastRemoteObject implements FileSharingInter
         clients = new ArrayList<String>();
     }
 
-    public void addClient(String peerId){
-        this.clients.add(peerId);
+    public void addClient(String peerID){
+        this.clients.add(peerID);
     }   
 
     public synchronized void registerFiles(String peerID, String fileName, String portno, String srcDir)

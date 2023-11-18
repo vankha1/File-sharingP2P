@@ -48,19 +48,22 @@ public class Client implements Runnable {
             if (inputLine.equals("exit")) {
                 hello.removeClient(peerID);
             }
-            while (!inputLine.equals("exit")) {
-                String[] inputArr = inputLine.split(" \"");
-               if (inputArr[0].equals("publish") && inputArr.length == 3) {
-                    String directoryName = inputArr[1].replace("\"", "");
-                    String fileName = inputArr[2].replace("\"", "");
-                    publishFile(directoryName, fileName);
-               } else if (inputArr[0].equals("fetch") && inputArr.length == 2) {
-                    String fileTobeSearched = inputArr[1].replace("\"", "");
-                    fetchFile( fileTobeSearched );
-               } else {
-                    System.out.println("Invalid input! Please try again!");
-               }
-
+            while (true) {
+                if (inputLine.equals("exit")) {
+                    break;
+                } else {
+                    String[] inputArr = inputLine.split(" \"");
+                   if (inputArr[0].equals("publish") && inputArr.length == 3) {
+                        String directoryName = inputArr[1].replace("\"", "");
+                        String fileName = inputArr[2].replace("\"", "");
+                        publishFile(directoryName, fileName);
+                   } else if (inputArr[0].equals("fetch") && inputArr.length == 2) {
+                        String fileTobeSearched = inputArr[1].replace("\"", "");
+                        fetchFile( fileTobeSearched );
+                   } else {
+                        System.out.println("Invalid input! Please try again!");
+                   }
+                }
                 inputLine = br.readLine();
             }
         } catch (Exception e) {
