@@ -1,4 +1,5 @@
 
+import java.io.IOException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
@@ -12,11 +13,11 @@ public interface FileSharingInterface extends Remote {
 
     public ArrayList<FileDetails> searchFile(String filename)throws RemoteException;
 
-    public void renameFile(String filename, String newFileName)throws RemoteException;
+    public void renameFile(String filename, String newFileName) throws RemoteException;
 
     public void deleteFile(String filename)throws RemoteException;
 
-    public void addClient(String peerID) throws RemoteException;
+    public boolean addClient(String peerID) throws RemoteException;
 
 
     public void removeClient(String peerId) throws RemoteException;
@@ -25,4 +26,8 @@ public interface FileSharingInterface extends Remote {
     public void pingClient(String peerID) throws RemoteException;
 
     public void discoverClient(String peerID) throws RemoteException;
+
+    public void listAllClients() throws RemoteException;
+    // public void setIP(String ip) throws RemoteException;
+    // public String getIP() throws RemoteException;
 }

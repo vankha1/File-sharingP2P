@@ -17,12 +17,12 @@ Server class bao gồm:
 // The static method LocateRegistry.getRegistry that takes no arguments returns a stub that implements the remote interface java.rmi.registry.Registry and sends invocations to the registry on server's local host on the default registry port of 1099. The bind method is then invoked on the registry stub in order to bind the remote object's stub to the name "Hello" in the registry.
 public class Server implements Runnable {
 
-   
    public static final String ANSI_RESET = "\u001B[0m";
    public static final String ANSI_BLACK = "\u001B[30m";
    public static final String ANSI_RED = "\u001B[31m";
    public static final String ANSI_YELLOW = "\u001B[33m";
    public static final String ANSI_BLUE = "\u001B[34m";
+   public static final String ANSI_CYAN = "\u001B[36m";
 
    public void run() {
       try {
@@ -30,41 +30,39 @@ public class Server implements Runnable {
          FileSharingInterface hello = new FileSharing();
          Naming.rebind("Hello", hello);
 
-         System.out.println(ANSI_BLUE + "Hello Server is ready." + ANSI_RESET);
+         System.out.println(ANSI_YELLOW + "Hello Server is ready." + ANSI_RESET);
 
          InetAddress ip = InetAddress.getLocalHost();
-         System.out.println(ANSI_BLUE + "The IP address of server : " + ip.getHostAddress() + ANSI_RESET);
+         System.out.println(ANSI_YELLOW + "The IP address of server : " + ip.getHostAddress() + ANSI_RESET);
 
          BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-         String inputLine = br.readLine();
-
-         if (inputLine.equals("exit")) {
-            Naming.unbind("Hello");
-            System.exit(0);
-         }
 
          while (true) {
-            String[] inputArr = inputLine.split(" \"");
-            if (inputArr[0].equals("discover") && inputArr.length == 2) {
-               String peerID = inputArr[1].replace("\"", "");
-               hello.discoverClient(peerID);
-            } else if (inputArr[0].equals("ping") && inputArr.length == 2) {
-               String peerID = inputArr[1].replace("\"", "");
-               hello.pingClient(peerID);
-            } else if (inputArr[0].equals("help") && inputArr.length == 1) {
-               System.out.println(ANSI_YELLOW + "ping <hostname>: " + ANSI_RESET);
-               System.out.println(ANSI_YELLOW + "live check a client" + ANSI_RESET);
-               System.out.println(ANSI_YELLOW + "discover <hostname> <port>: " + ANSI_RESET);
-               System.out.println(ANSI_YELLOW + "get all filenames from client's repo" + ANSI_RESET);
-               System.out.println(ANSI_YELLOW + "list:" + ANSI_RESET);
-               System.out.println(ANSI_YELLOW + "list all online clients" + ANSI_RESET);
-            } else {
-               System.out.println(ANSI_YELLOW + "Invalid input! Please try again!" + ANSI_RESET);
-            }
-            inputLine = br.readLine();
+            System.out.println(ANSI_BLUE + ">> Enter a command ('help' for the list of commands)" + ANSI_RESET);
+            String inputLine = br.readLine();
+            inputLine = inputLine.replaceAll("\\s+", " ");
+            System.out.println("Command: " + inputLine);
             if (inputLine.equals("exit")) {
                Naming.unbind("Hello");
                System.exit(0);
+            }
+            String[] inputArr = inputLine.split(" ");
+            if (inputArr[0].equals("discover") && inputArr.length == 2) {
+               String peerID = inputArr[1];
+               hello.discoverClient(peerID);
+            } else if (inputArr[0].equals("ping") && inputArr.length == 2) {
+               String peerID = inputArr[1];
+               hello.pingClient(peerID);
+            } else if (inputArr[0].equals("list")) {
+               hello.listAllClients();
+            } else if (inputArr[0].equals("help")) {
+               System.out.println(ANSI_YELLOW + "ping <hostname>:\n\u001B[36mlive check a client" + ANSI_RESET);
+               System.out.println(ANSI_YELLOW
+                     + "discover <hostname>:\n\u001B[36mget all filenames from client's repo" + ANSI_RESET);
+               System.out.println(ANSI_YELLOW + "list:\n\u001B[36mlist all online clients" + ANSI_RESET);
+               System.out.println(ANSI_YELLOW + "exit: \n\u001B[36mterminate server" + ANSI_RESET);
+            } else {
+               System.out.println(ANSI_YELLOW + "Invalid input! Please try again!" + ANSI_RESET);
             }
          }
       } catch (Exception e) {

@@ -1,3 +1,4 @@
+
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
@@ -19,14 +20,26 @@ public class FileSharing extends UnicastRemoteObject implements FileSharingInter
         clients = new ArrayList<String>();
     }
 
-    public void addClient(String ip) {
-        this.clients.add(ip);
-        System.out.println(ANSI_BLUE + "Clients are connected : " + clients + ANSI_RESET);
+    // public void setIP(String ip) throws RemoteException {
+    //     this.ipServer = ip;
+    // }
+
+    // public String getIP() throws RemoteException {
+    //     return this.ipServer;
+    // }
+
+    public boolean addClient(String peerId) {
+        if (this.clients.contains(peerId) && !this.clients.isEmpty()){
+            return false;
+        }
+        this.clients.add(peerId);
+        System.out.println(ANSI_YELLOW + "Clients are connected in peerID: " + clients + ANSI_RESET);
+        
+        return true;
     }
 
     public void removeClient(String peerID) throws RemoteException {
         this.clients.remove(peerID);
-        System.out.println(this.clients);
     }
 
     public synchronized void registerFiles(String peerID, String fileName, String portno, String srcDir)
@@ -67,10 +80,15 @@ public class FileSharing extends UnicastRemoteObject implements FileSharingInter
             }
         }
         if (isAlive) {
-            System.out.println(ANSI_BLUE + "Client " + peerID + "  sitll alive" + ANSI_RESET);
+            System.out.println(ANSI_YELLOW + "Client " + peerID + "  sitll alive" + ANSI_RESET);
         } else {
-            System.out.println(ANSI_BLUE + "Client " + peerID + " died" + ANSI_RESET);
+            System.out.println(ANSI_YELLOW + "Client " + peerID + " died" + ANSI_RESET);
         }
+    }
+
+    public void listAllClients() throws RemoteException {
+        System.out.println("All clients are available: ");
+        System.out.println(this.clients);
     }
 
     public ArrayList<FileDetails> searchFile(String filename) throws RemoteException {
