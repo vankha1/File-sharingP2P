@@ -2,10 +2,15 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 
-
 public class FileSharing extends UnicastRemoteObject implements FileSharingInterface {
     private ArrayList<FileDetails> Files;
     private ArrayList<String> clients;
+
+    public static final String ANSI_RESET = "\u001B[0m";
+    public static final String ANSI_BLACK = "\u001B[30m";
+    public static final String ANSI_RED = "\u001B[31m";
+    public static final String ANSI_YELLOW = "\u001B[33m";
+    public static final String ANSI_BLUE = "\u001B[34m";
 
     // private ArrayList<FileDetails> FilesMatched;
     public FileSharing() throws RemoteException {
@@ -14,9 +19,15 @@ public class FileSharing extends UnicastRemoteObject implements FileSharingInter
         clients = new ArrayList<String>();
     }
 
-    public void addClient(String peerId){
-        this.clients.add(peerId);
-    }   
+    public void addClient(String ip) {
+        this.clients.add(ip);
+        System.out.println(ANSI_BLUE + "Clients are connected : " + clients + ANSI_RESET);
+    }
+
+    public void removeClient(String peerID) throws RemoteException {
+        this.clients.remove(peerID);
+        System.out.println(this.clients);
+    }
 
     public synchronized void registerFiles(String peerID, String fileName, String portno, String srcDir)
             throws RemoteException {
@@ -28,55 +39,64 @@ public class FileSharing extends UnicastRemoteObject implements FileSharingInter
         this.Files.add(fd);
     }
 
-
     public void discoverClient(String peerID) throws RemoteException {
         boolean found = false;
         if (Files.isEmpty()) {
-            System.out.println("There are no files to discover");
+            System.out.println(ANSI_BLUE + "There are no files to discover" + ANSI_RESET);
         } else {
             for (int i = 0; i < Files.size(); i++) {
                 FileDetails fd = Files.get(i);
                 if (fd.peerID.equals(peerID)) {
-                    System.out.println("File name " + fd.FileName + " registered with peerID " + fd.peerID + " on port number " + fd.portNumber + " and the directory is " + fd.SourceDirectoryName);
+                    System.out.println(ANSI_BLUE + "File name " + fd.FileName + " registered with peerID " + fd.peerID
+                            + " on port number " + fd.portNumber + " and the directory is " + fd.SourceDirectoryName + ANSI_RESET);
                     found = true;
                 }
             }
-            if (!found){
-                System.out.println("There are no files of peer " + peerID);
+            if (!found) {
+                System.out.println(ANSI_BLUE + "There are no files of peer " + peerID + ANSI_RESET);
             }
         }
     }
 
     public void pingClient(String peerID) throws RemoteException {
         boolean isAlive = false;
-        for (int i = 0; i < this.clients.size(); i++){
+        for (int i = 0; i < this.clients.size(); i++) {
             if (this.clients.get(i).equals(peerID)) {
                 isAlive = true;
                 break;
             }
         }
         if (isAlive) {
-            System.out.println("Client " + peerID + "  sitll alive");
+            System.out.println(ANSI_BLUE + "Client " + peerID + "  sitll alive" + ANSI_RESET);
         } else {
-            System.out.println("Client " + peerID + " died");
+            System.out.println(ANSI_BLUE + "Client " + peerID + " died" + ANSI_RESET);
         }
     }
 
-    public void removeClient(String peerID) throws RemoteException {
-        this.clients.remove(peerID);
-        System.out.println(this.clients);
-    }
-
     public ArrayList<FileDetails> searchFile(String filename) throws RemoteException {
-        ArrayList<FileDetails> FilesMatched= new ArrayList<FileDetails>();
-        for(int i=0;i<this.Files.size();i++)
-        {
-            if(filename.equalsIgnoreCase(Files.get(i).FileName))
-            {
+        ArrayList<FileDetails> FilesMatched = new ArrayList<FileDetails>();
+        for (int i = 0; i < this.Files.size(); i++) {
+            if (filename.equalsIgnoreCase(Files.get(i).FileName)) {
                 FilesMatched.add(Files.get(i));
 
             }
         }
         return (FilesMatched);
+    }
+
+    public void renameFile(String filename, String newFileName) throws RemoteException {
+        for (int i = 0; i < this.Files.size(); i++) {
+            if (Files.get(i).FileName.equals(filename)) {
+                Files.get(i).FileName = newFileName;
+            }
+        }
+    }
+
+    public void deleteFile(String filename) throws RemoteException {
+        for (int i = 0; i < this.Files.size(); i++) {
+            if (Files.get(i).FileName.equals(filename)) {
+                Files.remove(i);
+            }
+        }
     }
 }
