@@ -78,7 +78,6 @@ public class FileSharing extends UnicastRemoteObject implements FileSharingInter
         for (int i = 0; i < this.Files.size(); i++) {
             if (filename.equalsIgnoreCase(Files.get(i).FileName)) {
                 FilesMatched.add(Files.get(i));
-
             }
         }
         return (FilesMatched);

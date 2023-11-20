@@ -43,7 +43,7 @@ public class Client implements Runnable {
         isAlive = true;
         try {
             // Looking up the registry for the remote object
-            FileSharingInterface hello = (FileSharingInterface) Naming.lookup("rmi://172.20.87.231/Hello");
+            FileSharingInterface hello = (FileSharingInterface) Naming.lookup("rmi://172.29.16.1/Hello");
 
             // input peerId
             BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -94,11 +94,25 @@ public class Client implements Runnable {
     public void publishFile(String directoryName, String fileName) throws IOException {
         this.directoryName = directoryName;
         try {
-            FileSharingInterface hello = (FileSharingInterface) Naming.lookup("rmi://172.25.32.1/Hello");
+            FileSharingInterface hello = (FileSharingInterface) Naming.lookup("rmi://172.29.16.1/Hello");
             try {
-                // register file in the directoryName with the remote object (server side).
-                // This method is done by the server, so thread of server will log the result of
-                hello.registerFiles(peerID, fileName, portno, directoryName);
+                File directoryList = new File(directoryName);
+                int counter = 0;
+                String[] store = directoryList.list();
+                boolean isAlive = false;
+                while (counter < store.length) {
+                    File currentFile = new File(store[counter]);
+                    if (fileName.equalsIgnoreCase(currentFile.getName())) {
+                        isAlive = true;
+                        break;
+                    }
+                    counter++;
+                }
+                if (isAlive) {
+                    hello.registerFiles(peerID, fileName, portno, directoryName);
+                } else {
+                    System.out.println("Can not find file to publish!.");
+                }
             } catch (RemoteException ex) {
                 Logger.getLogger(FileSharingClient.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -117,20 +131,37 @@ public class Client implements Runnable {
 
     public void fetchFile(String fileTobeSearched) {
         System.out.println(fileTobeSearched);
-        try {
-            FileSharingInterface hello = (FileSharingInterface) Naming.lookup("rmi://172.25.32.1/Hello");
-
-            ArrayList<FileDetails> FilesName = hello.searchFile(fileTobeSearched);
-
-            downloadFile(FilesName);
-        } catch (Exception e) {
-            System.out.println(ANSI_RED + "HelloClient exception: " + e + ANSI_RESET);
+        File directoryList = new File(this.directoryName);
+        int counter = 0;
+        String[] store = directoryList.list();
+        boolean isAlive = false;
+        while (counter < store.length) {
+            File currentFile = new File(store[counter]);
+            if (fileTobeSearched.equalsIgnoreCase(currentFile.getName())) {
+                isAlive = true;
+                break;
+            }
+            counter++;
+        }
+        if (isAlive) {
+            System.out.println("This file already exists in the directory!");
+        }
+        else {
+            try {
+                FileSharingInterface hello = (FileSharingInterface) Naming.lookup("rmi://172.29.16.1/Hello");
+    
+                ArrayList<FileDetails> FilesName = hello.searchFile(fileTobeSearched);
+    
+                downloadFile(FilesName);
+            } catch (Exception e) {
+                System.out.println(ANSI_RED + "HelloClient exception: " + e + ANSI_RESET);
+            }
         }
     }
 
     public void renameFileLocal(String FileName, String newFileName) throws IOException {
         try {
-            FileSharingInterface hello = (FileSharingInterface) Naming.lookup("rmi://172.25.32.1/Hello");
+            FileSharingInterface hello = (FileSharingInterface) Naming.lookup("rmi://172.29.16.1/Hello");
 
             String sourceFile = this.directoryName + "\\" + FileName;
             String sourceNewFile = this.directoryName + "\\" + newFileName;
