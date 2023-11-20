@@ -41,12 +41,13 @@ public class Server implements Runnable {
             System.out.println(ANSI_BLUE + ">> Enter a command ('help' for the list of commands)" + ANSI_RESET);
             String inputLine = br.readLine();
             inputLine = inputLine.replaceAll("\\s+", " ");
-            System.out.println("Command: " + inputLine);
+            // System.out.println("Command: " + inputLine);
             if (inputLine.equals("exit")) {
                Naming.unbind("Hello");
                System.exit(0);
             }
             String[] inputArr = inputLine.split(" ");
+            
             if (inputArr[0].equals("discover") && inputArr.length == 2) {
                String peerID = inputArr[1];
                hello.discoverClient(peerID);

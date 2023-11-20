@@ -55,18 +55,18 @@ public class FileSharing extends UnicastRemoteObject implements FileSharingInter
     public void discoverClient(String peerID) throws RemoteException {
         boolean found = false;
         if (Files.isEmpty()) {
-            System.out.println(ANSI_BLUE + "There are no files to discover" + ANSI_RESET);
+            System.out.println(ANSI_YELLOW + "There are no files to discover" + ANSI_RESET);
         } else {
             for (int i = 0; i < Files.size(); i++) {
                 FileDetails fd = Files.get(i);
                 if (fd.peerID.equals(peerID)) {
-                    System.out.println(ANSI_BLUE + "File name " + fd.FileName + " registered with peerID " + fd.peerID
+                    System.out.println(ANSI_YELLOW + "File name " + fd.FileName + " registered with peerID " + fd.peerID
                             + " on port number " + fd.portNumber + " and the directory is " + fd.SourceDirectoryName + ANSI_RESET);
                     found = true;
                 }
             }
             if (!found) {
-                System.out.println(ANSI_BLUE + "There are no files of peer " + peerID + ANSI_RESET);
+                System.out.println(ANSI_YELLOW + "There are no files of peer " + peerID + ANSI_RESET);
             }
         }
     }
@@ -87,8 +87,8 @@ public class FileSharing extends UnicastRemoteObject implements FileSharingInter
     }
 
     public void listAllClients() throws RemoteException {
-        System.out.println("All clients are available: ");
-        System.out.println(this.clients);
+        System.out.println(ANSI_YELLOW + "All clients are available: " + ANSI_RESET);
+        System.out.println(ANSI_YELLOW + this.clients + ANSI_RESET);
     }
 
     public ArrayList<FileDetails> searchFile(String filename) throws RemoteException{
