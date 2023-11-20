@@ -91,7 +91,7 @@ public class FileSharing extends UnicastRemoteObject implements FileSharingInter
         System.out.println(this.clients);
     }
 
-    public ArrayList<FileDetails> searchFile(String filename) throws RemoteException {
+    public ArrayList<FileDetails> searchFile(String filename) throws RemoteException{
         ArrayList<FileDetails> FilesMatched = new ArrayList<FileDetails>();
         for (int i = 0; i < this.Files.size(); i++) {
             if (filename.equalsIgnoreCase(Files.get(i).FileName)) {
