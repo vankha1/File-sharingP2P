@@ -25,6 +25,7 @@ public class Client implements Runnable {
     String directoryName = null;
     String fileTobeSearched = null;
     String peerID = null;
+    String ipServer = null;
     boolean isAlive = false;
     BufferedReader inp = new BufferedReader(new InputStreamReader(System.in));
 
@@ -34,8 +35,9 @@ public class Client implements Runnable {
     public static final String ANSI_YELLOW = "\u001B[33m";
     public static final String ANSI_BLUE = "\u001B[34m";
 
-    Client(String portno) {
+    Client(String portno, String ipServer) {
         this.portno = portno;
+        this.ipServer = ipServer;
     }
 
     public void run() {
@@ -43,7 +45,7 @@ public class Client implements Runnable {
         isAlive = true;
         try {
             // Looking up the registry for the remote object
-            FileSharingInterface hello = (FileSharingInterface) Naming.lookup("rmi://172.29.16.1/Hello");
+            FileSharingInterface hello = (FileSharingInterface) Naming.lookup("rmi://" + ipServer + "/Hello");
 
             // input peerId
             BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -54,38 +56,58 @@ public class Client implements Runnable {
             System.out.print(ANSI_BLUE + "Enter the peer ID: " + ANSI_RESET);
             peerID = br.readLine();
 
-            hello.addClient(ip.getHostAddress());
+            if (hello.addClient(peerID)) {
 
-            String inputLine = br.readLine();
-            if (inputLine.equals("exit")) {
-                hello.removeClient(peerID);
+            } else {
+                System.out.println(ANSI_YELLOW + "Client exists, please choose another peerID" + ANSI_RESET);
+                System.out.print(ANSI_BLUE + "Enter the peer ID: " + ANSI_RESET);
+                peerID = br.readLine();
             }
+
             while (true) {
+                // System.out.println(ANSI_BLUE + ">> Enter a command ('help' for the list of commands)" + ANSI_RESET);
+                String inputLine = br.readLine();
+                // inputLine = inputLine.replace("\uFFFC", "");            
+                System.out.println("Command: " + inputLine.length());
                 if (inputLine.equals("exit")) {
+                    hello.removeClient(peerID);
                     break;
-                } else {
-                    String[] inputArr = inputLine.split(" \"");
-                    if (inputArr[0].equals("publish") && inputArr.length == 3) {
-                        String directoryName = inputArr[1].replace("\"", "");
-                        String fileName = inputArr[2].replace("\"", "");
-                        publishFile(directoryName, fileName);
-                    } else if (inputArr[0].equals("fetch") && inputArr.length == 2) {
-                        String fileTobeSearched = inputArr[1].replace("\"", "");
-                        fetchFile(fileTobeSearched);
-                    } else if (inputArr[0].equals("rename") && inputArr.length == 3) {
-                        String fileTobeRenamed = inputArr[1].replace("\"", "");
-                        String fileNewName = inputArr[2].replace("\"", "");
-                        renameFileLocal(fileTobeRenamed, fileNewName);
-                    } else if (inputArr[0].equals("delete") && inputArr.length == 2) {
-                        String fileTobeRenamed = inputArr[1].replace("\"", "");
-                        deleteFileLocal(fileTobeRenamed);
-                    } else {
-                        System.out.println(ANSI_RED + "Invalid input! Please try again!" + ANSI_RESET);
-                    }
                 }
+                inputLine = inputLine.replaceAll("\\s+", " ");
 
-                inputLine = br.readLine();
+
+                String[] inputArr = inputLine.split(" ");
+                if (inputArr[0].equals("publish") && inputArr.length == 3) {
+                    String directoryName = inputArr[1];
+                    String fileName = inputArr[2];
+                    publishFile(directoryName, fileName);
+                } else if (inputArr[0].equals("fetch") && inputArr.length == 2) {
+                    String fileTobeSearched = inputArr[1];
+                    fetchFile(fileTobeSearched);
+                } else if (inputArr[0].equals("rename") && inputArr.length == 3) {
+                    String fileTobeRenamed = inputArr[1];
+                    String fileNewName = inputArr[2];
+                    renameFileLocal(fileTobeRenamed, fileNewName);
+                } else if (inputArr[0].equals("delete") && inputArr.length == 2) {
+                    String fileTobeRenamed = inputArr[1];
+                    deleteFileLocal(fileTobeRenamed);
+                } else if (inputArr[0].equals("help")) {
+                    System.out.println(ANSI_YELLOW
+                            + "publish <lname> <fname>:\n\u001B[36mupload filename from directory <lname> to chosen local repo with name <fname>"
+                            + ANSI_RESET);
+                    System.out.println(ANSI_YELLOW
+                            + "fetch <fname>:\n\u001B[36msend a file transfer request to server" + ANSI_RESET);
+                    System.out.println(ANSI_YELLOW
+                            + "rename <old_name> <new_name>:\n\u001B[36mrename filename <old_name> in local repo to <new_name>"
+                            + ANSI_RESET);
+                    System.out.println(ANSI_YELLOW
+                            + "delete <fname>:\n\u001B[36mdelete filename <fname> in local repo" + ANSI_RESET);
+                    System.out.println(ANSI_YELLOW + "exit: \n\u001B[36mterminate client" + ANSI_RESET);
+                } else {
+                    System.out.println(ANSI_RED + "Invalid input! Please try again!" + ANSI_RESET);
+                }
             }
+            System.exit(0);
         } catch (Exception e) {
             System.out.println(ANSI_RED + "HelloClient exception: " + e + ANSI_RESET);
         }
@@ -94,12 +116,13 @@ public class Client implements Runnable {
     public void publishFile(String directoryName, String fileName) throws IOException {
         this.directoryName = directoryName;
         try {
-            FileSharingInterface hello = (FileSharingInterface) Naming.lookup("rmi://172.29.16.1/Hello");
+            FileSharingInterface hello = (FileSharingInterface) Naming.lookup("rmi://" + ipServer + "/Hello");
             try {
                 File directoryList = new File(directoryName);
                 int counter = 0;
                 String[] store = directoryList.list();
                 boolean isAlive = false;
+                System.out.println(directoryList);
                 while (counter < store.length) {
                     File currentFile = new File(store[counter]);
                     if (fileName.equalsIgnoreCase(currentFile.getName())) {
@@ -161,7 +184,7 @@ public class Client implements Runnable {
 
     public void renameFileLocal(String FileName, String newFileName) throws IOException {
         try {
-            FileSharingInterface hello = (FileSharingInterface) Naming.lookup("rmi://172.29.16.1/Hello");
+            FileSharingInterface hello = (FileSharingInterface) Naming.lookup("rmi://" + ipServer + "/Hello");
 
             String sourceFile = this.directoryName + "\\" + FileName;
             String sourceNewFile = this.directoryName + "\\" + newFileName;
@@ -181,7 +204,7 @@ public class Client implements Runnable {
     }
 
     public void deleteFileLocal(String fileName) throws IOException, NoSuchFileException {
-        File file = new File("C:\\Users\\Admin\\Downloads\\test\\test.txt");
+        File file = new File(directoryName + fileName);
         if (file.delete()) {
             System.out.println(ANSI_BLUE + "File deleted successfully" + ANSI_RESET);
         } else {
@@ -195,10 +218,10 @@ public class Client implements Runnable {
         for (int i = 0; i < FilesName.size(); i++) {
             System.out.println(ANSI_BLUE + "This file can be found in peerID " + FilesName.get(i).peerID + ANSI_RESET);
         }
-        String portForAnotherClient = FilesName.get(0).portNumber;
+        // String portForAnotherClient = FilesName.get(0).portNumber;
         String sourceDir = FilesName.get(0).SourceDirectoryName;
-        FileSharingClient peerServer = (FileSharingClient) Naming
-                .lookup("rmi://localhost:" + portForAnotherClient + "/FileServer");
+        // FileSharingClient peerServer = (FileSharingClient) Naming
+        //         .lookup("rmi://localhost:" + portForAnotherClient + "/FileServer");
 
         String source = sourceDir + "\\" + FilesName.get(0).FileName;
         // directory where file will be copied
@@ -209,9 +232,12 @@ public class Client implements Runnable {
         try {
             File srcFile = new File(source);
             File destFile = new File(target);
+            System.out.println(1);
             if (!destFile.exists()) {
+                System.out.println(2);
                 destFile.createNewFile();
             }
+            System.out.println(3);
             is = new FileInputStream(srcFile);
 
             os = new FileOutputStream(target + "\\" + srcFile.getName());
@@ -234,7 +260,7 @@ public class Client implements Runnable {
 
         BufferedReader inp = new BufferedReader(new InputStreamReader(System.in));
         String portno = null;
-        System.out.print(ANSI_YELLOW + "Enter port number to be registered: " + ANSI_RESET);
+        System.out.print(ANSI_BLUE + "Enter port number to be registered: " + ANSI_RESET);
         portno = inp.readLine();
         try {
             LocateRegistry.createRegistry(Integer.parseInt(portno));
@@ -242,6 +268,6 @@ public class Client implements Runnable {
             System.err.println(ANSI_RED + "FileServer exception: " + e.getMessage() + ANSI_RESET);
             e.printStackTrace();
         }
-        new Client(portno).run();
+        new Client(portno, args[0]).run();
     }
 }
