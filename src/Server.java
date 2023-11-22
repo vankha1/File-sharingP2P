@@ -41,7 +41,6 @@ public class Server implements Runnable {
             System.out.println(ANSI_BLUE + ">> Enter a command ('help' for the list of commands)" + ANSI_RESET);
             String inputLine = br.readLine();
             inputLine = inputLine.replaceAll("\\s+", " ");
-            // System.out.println("Command: " + inputLine);
             if (inputLine.equals("exit")) {
                Naming.unbind("Hello");
                System.exit(0);

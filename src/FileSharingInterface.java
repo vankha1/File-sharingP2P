@@ -17,15 +17,12 @@ public interface FileSharingInterface extends Remote {
 
     public boolean addClient(String peerID) throws RemoteException;
 
-
     public void removeClient(String peerId) throws RemoteException;
-
 
     public void pingClient(String peerID) throws RemoteException;
 
     public void discoverClient(String peerID) throws RemoteException;
 
     public void listAllClients() throws RemoteException;
-    // public void setIP(String ip) throws RemoteException;
-    // public String getIP() throws RemoteException;
+
 }

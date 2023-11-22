@@ -20,14 +20,6 @@ public class FileSharing extends UnicastRemoteObject implements FileSharingInter
         clients = new ArrayList<String>();
     }
 
-    // public void setIP(String ip) throws RemoteException {
-    //     this.ipServer = ip;
-    // }
-
-    // public String getIP() throws RemoteException {
-    //     return this.ipServer;
-    // }
-
     public boolean addClient(String peerId) {
         if (this.clients.contains(peerId) && !this.clients.isEmpty()){
             return false;
