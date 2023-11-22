@@ -170,11 +170,21 @@ public class Client implements Runnable {
     }
 
     public void deleteFileLocal(String fileName) throws IOException, NoSuchFileException {
-        File file = new File(directoryName + fileName);
-        if (file.delete()) {
-            System.out.println(ANSI_BLUE + "File deleted successfully" + ANSI_RESET);
-        } else {
-            System.out.println(ANSI_RED + "Failed to delete the file" + ANSI_RESET);
+        try {
+            File file = new File(directoryName + "\\" + fileName);
+            FileSharingInterface hello = (FileSharingInterface) Naming.lookup("rmi://" + ipServer + "/Hello");
+            if (file.delete()) {
+                System.out.println(ANSI_BLUE + "File deleted successfully" + ANSI_RESET);
+    
+    
+                hello.deleteFile(fileName);
+            
+            } else {
+                System.out.println(ANSI_RED + "Failed to delete the file" + ANSI_RESET);
+            }
+        }
+        catch (Exception e) {
+            System.out.println("Operation Failed");
         }
     }
 
