@@ -2,6 +2,9 @@
 // import java.io.BufferedInputStream;
 // import java.io.File;
 // import java.io.FileInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.rmi.RemoteException;
@@ -17,15 +20,31 @@ public class FileImpl extends UnicastRemoteObject
       directoryName = s;
    }
 
-   public void downloadFile(String fileName, byte[] fileContent) {
+   public byte[] downloadFile(FileDetails file) {
+      byte[] data;
+      String filePath = file.SourceDirectoryName + "\\" + file.FileName;
+      File fileToDown = new File(filePath);
+      data = new byte[(int) fileToDown.length()];
+      FileInputStream in;
       try {
-         FileOutputStream os = new FileOutputStream(directoryName + "\\" + fileName
-               );
-         os.write(fileContent);
-         System.out.println("Download successfully!.");
-         os.close();
-      } catch (IOException e) {
+         in = new FileInputStream(filePath);
+         try {
+            in.read(data, 0, data.length);
+         } catch (IOException e) {
+
+            e.printStackTrace();
+         }
+         try {
+            in.close();
+         } catch (IOException e) {
+
+            e.printStackTrace();
+         }
+
+      } catch (FileNotFoundException e) {
+
          e.printStackTrace();
-      } 
+      }
+      return data;
    }
 }

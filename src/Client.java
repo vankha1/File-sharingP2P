@@ -178,35 +178,42 @@ public class Client implements Runnable {
         }
     }
 
-    public void downloadFile(ArrayList<FileDetails> FilesName)
+    public void downloadFile(ArrayList<FileDetails> files)
             throws NotBoundException, RemoteException, MalformedURLException, IOException {
         // get port
-        for (int i = 0; i < FilesName.size(); i++) {
-            System.out.println(ANSI_BLUE + "This file can be found in peerID " + FilesName.get(i).peerID + ANSI_RESET);
+        for (int i = 0; i < files.size(); i++) {
+            System.out.println(ANSI_BLUE + "This file can be found in peerID " + files.get(i).peerID + ANSI_RESET);
         }
-        String portForAnotherClient = FilesName.get(0).portNumber;
-        String peerIDAnotherClient = FilesName.get(0).peerID;
-        String sourceDir = FilesName.get(0).SourceDirectoryName;
+        String portForAnotherClient = files.get(0).portNumber;
+        String peerIDAnotherClient = files.get(0).peerID;
+        String sourceDir = files.get(0).SourceDirectoryName;
         System.out.println(peerIDAnotherClient);
         System.out.println(portForAnotherClient);
 
         FileSharingClient peerServer = (FileSharingClient) Naming
-        .lookup("rmi://" + peerIDAnotherClient + ":" + portForAnotherClient +
-        "/FileServer");
-        // byte[] fileContent = peerServer.downloadFile(FilesName.get(0).FileName);
-        byte[] fileContent = null;
-        try {
-            File file = new File(sourceDir + "\\" + FilesName.get(0).FileName);
-            byte buffer[] = new byte[(int) file.length()];
-            BufferedInputStream input = new BufferedInputStream(new FileInputStream(file));
-            input.read(buffer, 0, buffer.length);
-            input.close();
-            fileContent = buffer;
-        } catch (Exception e) {
-            System.out.println("FileImpl: " + e.getMessage());
-            e.printStackTrace();
-        }
-        peerServer.downloadFile(FilesName.get(0).FileName, fileContent);
+                .lookup("rmi://" + peerIDAnotherClient + ":" + portForAnotherClient +
+                        "/FileServer");
+        byte[] fileContent = peerServer.downloadFile(files.get(0));
+        System.out.println("downloading...");
+        File clientPathFile = new File(directoryName + "\\" + files.get(0).FileName);
+        FileOutputStream out = new FileOutputStream(clientPathFile);
+        out.write(fileContent);
+        out.flush();
+        out.close();
+        // byte[] fileContent = null;
+        // try {
+        // File file = new File(sourceDir + "\\" + FilesName.get(0).FileName);
+        // byte buffer[] = new byte[(int) file.length()];
+        // BufferedInputStream input = new BufferedInputStream(new
+        // FileInputStream(file));
+        // input.read(buffer, 0, buffer.length);
+        // input.close();
+        // fileContent = buffer;
+        // } catch (Exception e) {
+        // System.out.println("FileImpl: " + e.getMessage());
+        // e.printStackTrace();
+        // }
+        // peerServer.downloadFile(FilesName.get(0).FileName, fileContent);
         // String source = sourceDir + "\\" + FilesName.get(0).FileName;
         // // directory where file will be copied
         // String target = directoryName;
