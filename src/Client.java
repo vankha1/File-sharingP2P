@@ -156,7 +156,7 @@ public class Client implements Runnable {
             System.out.println("This file already exists in the directory!");
         } else {
             try {
-                FileSharingInterface hello = (FileSharingInterface) Naming.lookup("rmi://172.29.16.1/Hello");
+                FileSharingInterface hello = (FileSharingInterface) Naming.lookup("rmi://" + ipServer + "/Hello");
 
                 ArrayList<FileDetails> FilesName = hello.searchFile(fileTobeSearched);
 
